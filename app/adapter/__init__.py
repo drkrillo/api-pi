@@ -1,0 +1,1 @@
+from app.adapter.character_adapter import *

@@ -1,0 +1,1 @@
+from app.services.character_service import *
