@@ -4,6 +4,7 @@ from typing import Optional, List
 from functools import wraps
 
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import JSONResponse
 from sqlalchemy import inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.reflection import Inspector
@@ -14,8 +15,9 @@ from app.schemas import (
     CharacterAddPOSTResponse,
     CharacterAddPOSTRequest,
     CharacterAllGETResponse,
+    CharacterByIdGETResponse,
 )
-from app.exceptions.custom_exception import CharacterNameExistsError
+from app.exceptions.custom_exception import CharacterIdExistsError, CharacterIdNotFound
 from app.logger import logger
 
 
@@ -34,9 +36,14 @@ def handle_exceptions(func):
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        except CharacterNameExistsError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        except CharacterIdExistsError as e:
+            logging.error(f"Error:  {e}")
+            raise HTTPException(status_code=400, detail="Character ID already exists.")
+        except CharacterIdNotFound as e:
+            logging.error(f"Error: {e}")
+            raise HTTPException(status_code=400, detail="Character ID not found.")
         except Exception as e:
+            logging.error(f"Error: {e}")
             raise HTTPException(status_code=500, detail="Internal server error")
     return wrapper
 
@@ -86,7 +93,7 @@ async def test_api(session: AsyncSession = Depends(get_db)):
     response_model=List[CharacterAllGETResponse],
     status_code=200
 )
-async def character_getall_endpoint(db: AsyncSession = Depends(get_db)):
+async def character_get_all_endpoint(db: AsyncSession = Depends(get_db)):
 
     service_characters = await CharacterService.get_all(db)
     try:
@@ -98,13 +105,26 @@ async def character_getall_endpoint(db: AsyncSession = Depends(get_db)):
         logger.error(f"Error while retrieving all characeters: {e}")
         return HTTPException(status_code=400, detail=f"Error while retrieving all characters: {e}")
 
+@app.get(
+    f"/{API_VERSION}/character/get/{{id}}",
+    response_model=CharacterByIdGETResponse,
+    status_code=200
+)
+@handle_exceptions
+async def character_get_by_id_endpoint(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    selected_character = await CharacterService.get_by_id(db=db, id=id)
+    return CharacterByIdGETResponse(**selected_character)
+
 @app.post(
     f"/{API_VERSION}/character/add",
     response_model=CharacterAddPOSTResponse,
     status_code=200
 )
 @handle_exceptions
-async def character_post_endpoint(
+async def character_post_add_endpoint(
     post_request: CharacterAddPOSTRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -113,6 +133,19 @@ async def character_post_endpoint(
         character=post_request.dict(),
     )
     return CharacterAddPOSTResponse(**added_character)
+
+@app.delete(
+    f"/{API_VERSION}/character/delete/{{id}}",
+    response_model=None,
+    status_code=200
+)
+@handle_exceptions
+async def character_delete_by_id_endpoint(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    response = await CharacterService.delete_by_id(db=db, id=id)
+    return JSONResponse(response)
 
 if __name__ == "__main__":
     asyncio.run(init_db())

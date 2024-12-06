@@ -8,8 +8,9 @@ class Character(Base):
         Integer, 
         primary_key=True, 
         index=True,
-        autoincrement=True,
+        autoincrement=False,
         unique=True,
+        nullable=False,
     )
     name = Column(
         String(100), 

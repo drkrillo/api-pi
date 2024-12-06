@@ -2,7 +2,7 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure import CharacterRepository
-from app.exceptions.custom_exception import CharacterNameExistsError
+from app.exceptions.custom_exception import CharacterIdExistsError, CharacterIdNotFound
 
 from app.logger import logger
 
@@ -10,12 +10,12 @@ from app.logger import logger
 class CharacterAdapter:
     @staticmethod
     async def add_characeter(db: AsyncSession, character_data: dict) -> dict:
-        character = await CharacterRepository.get_character_by_name(
+        character = await CharacterRepository.get_character_by_id(
             db=db,
-            name=character_data["name"],
+            id=character_data["id"],
         )
         if character:
-            raise CharacterNameExistsError("The name is not available.")
+            raise CharacterIdExistsError("The ID is not available.")
         
         created_character = await CharacterRepository.add_character(
             db=db,
@@ -23,6 +23,7 @@ class CharacterAdapter:
             )
 
         return {
+            "id": created_character.id,
             "name": created_character.name,
             "height": created_character.height,
             "mass": created_character.mass,
@@ -55,4 +56,23 @@ class CharacterAdapter:
             logging.error(e)
             raise e
 
+    async def get_character_by_id(db: AsyncSession, id: int):
+        selected_character = await CharacterRepository.get_character_by_id(db=db, id=id)
+        if not selected_character:
+            logger.error(f"Character ID not found.")
+            raise CharacterIdNotFound
+        
+        return {
+            'id': selected_character.id,
+            'name': selected_character.name,
+            'height': selected_character.height,
+            'mass': selected_character.mass,
+            'hair_color': selected_character.hair_color,
+            'skin_color': selected_character.skin_color,
+            'eye_color': selected_character.eye_color,
+            'birth_year': selected_character.birth_year
+        }
 
+    async def delete_character_by_id(db: AsyncSession, id: int):
+        response = await CharacterRepository.delete_character_by_id(db=db, id=id)
+        return response

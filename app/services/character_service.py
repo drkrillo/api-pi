@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import CharacterAddPOSTRequest
 from app.adapter import CharacterAdapter
 from app.logger import logger
-from app.exceptions.custom_exception import CharacterNameExistsError
+from app.exceptions.custom_exception import CharacterIdExistsError
 
 class CharacterService:
     @staticmethod
@@ -19,6 +19,15 @@ class CharacterService:
     @staticmethod
     async def get_all(db: AsyncSession) -> dict:
         return await CharacterAdapter.get_all_characters(db)
+    
+    @staticmethod
+    async def get_by_id(db: AsyncSession, id: int) -> dict:
+        return await CharacterAdapter.get_character_by_id(db=db, id=id)
+
+
+    @staticmethod
+    async def delete_by_id(db: AsyncSession, id: int) -> dict:
+        return await CharacterAdapter.delete_character_by_id(db=db, id=id)
 
         
         
