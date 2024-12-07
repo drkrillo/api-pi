@@ -16,10 +16,8 @@ SessionLocal = sessionmaker(
     autoflush=False,
 )
 
-# Base para modelos
 Base = declarative_base()
 
-# Dependencia para obtener una sesión
 async def get_db() -> AsyncSession:
     async with SessionLocal() as session:
         try:
