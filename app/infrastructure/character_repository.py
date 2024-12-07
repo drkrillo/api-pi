@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from sqlalchemy import delete
@@ -7,6 +6,9 @@ from sqlalchemy.future import select
 
 from app.database.models import Character
 from app.exceptions.custom_exception import CharacterIdNotFound
+
+from app.logger.config import logger
+
 
 class CharacterRepository:
     
@@ -34,7 +36,7 @@ class CharacterRepository:
         
         except Exception as e:
             await db.rollback()
-            logging.error(e)
+            logger.error(f"An error ocurred while traying to create new character: {e}")
             raise e
 
     @staticmethod
@@ -46,11 +48,11 @@ class CharacterRepository:
         character_to_delete = result.scalars().first()
 
         if not character_to_delete:
+            logger.error(f"Character ID {id} not found.")
             raise CharacterIdNotFound
         
         await db.execute(delete(Character).where(Character.id == id))
         await db.commit()
 
         return {"detail": f"Character with id {id} deleted successfully"}
-
-
+    

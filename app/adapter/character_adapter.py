@@ -15,6 +15,7 @@ class CharacterAdapter:
             id=character_data["id"],
         )
         if character:
+            logger.error(f"Character id {id} already exists.")
             raise CharacterIdExistsError("The ID is not available.")
         
         created_character = await CharacterRepository.add_character(
@@ -53,13 +54,13 @@ class CharacterAdapter:
             return all_characters
 
         except Exception as e:
-            logging.error(e)
+            logger.error(f"An error occurred while retrieving all characetrs: {e}")
             raise e
 
     async def get_character_by_id(db: AsyncSession, id: int):
         selected_character = await CharacterRepository.get_character_by_id(db=db, id=id)
         if not selected_character:
-            logger.error(f"Character ID not found.")
+            logger.error(f"Character ID {id} not found.")
             raise CharacterIdNotFound
         
         return {
