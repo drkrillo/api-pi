@@ -62,7 +62,7 @@ class CharacterAllGETResponse(BaseModel):
     eye_color: str
     
     @field_validator("id")
-    def validate_name(cls, value):
+    def validate_id(cls, value):
         if value <= 0:
             raise ValueError("id must be bigger than 0.")
         return value

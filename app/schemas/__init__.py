@@ -1,2 +1,2 @@
-from app.schemas.request.chracter_request import *
-from app.schemas.response.character_response import *
+from schemas.request.chracter_request import *
+from schemas.response.character_response import *

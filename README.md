@@ -12,7 +12,7 @@ A REST API that implements some common REST endpoints on a Character(GET, POST, 
 
 ```bash
 docker build -f docker/Dockerfile.dev -t api-pi .
-docker run -p 8000:8000 api-pi
+docker run -p 8000:8000 -v $(pwd)/database:/database api-pi
 ```
 
 ### Without Docker

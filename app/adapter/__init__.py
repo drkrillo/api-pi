@@ -1,1 +1,1 @@
-from app.adapter.character_adapter import *
+from adapter.character_adapter import *
