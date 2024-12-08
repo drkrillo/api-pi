@@ -10,5 +10,10 @@ if [[ "$1" == "pytest" ]]; then
   exec "$@"
 fi
 
+# Default behaviour: uvicorndocker
+if [[ "$1" == "" ]]; then
+  set -- uvicorn main:app --reload --host 0.0.0.0
+fi
+
 # Executes command
 exec "$@"

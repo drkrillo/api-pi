@@ -2,6 +2,12 @@
 
 A REST API that implements some common REST endpoints on a Character(GET, POST, DELETE).
 
+## Solution's Architecture
+
+The app's architecture follows the following architecure, ensuring good practices and single responsability principle.
+
+![App's Architecture](architecture_diagram.jpg)
+
 ### Setup project 
 
 1. Clone/fork repoo
@@ -12,7 +18,7 @@ A REST API that implements some common REST endpoints on a Character(GET, POST, 
 
 ```bash
 docker build -f docker/Dockerfile.dev -t api-pi .
-docker run -p 8000:8000 -v $(pwd)/database:/database api-pi
+docker run -p 8000:8000 -v $(pwd)/app/database:/app/database api-pi
 ```
 
 3. Once the container is running, to run unit tests:
@@ -34,8 +40,12 @@ exec uvicorn app.main:app --reload --host 0.0.0.0
 3. Once the project is up, to run unit tests:
 
 ```bash
-docker exec <CONTAINER ID> pytest --cov=app --cov-report=html --cov-report=term tests/
+pytest --cov=app --cov-report=html --cov-report=term tests/
 ```
+
+Once the SQLLite DB is started, a file called database.db will be created inside app/database. That file will persist the data.
+
+The -v $(pwd)/app/database:/app/database tag in Docker version is to set a volume to persist that file data in your local environment.
 
 ## Endpoints
 
@@ -138,6 +148,11 @@ STATUS CODE: 400
 }
 ```
 
+### Postman Collection
+
+A POSTMan collection is added to this repo so that some operations can be easily ran.
+
+There are successful and unseccessful requests to tests functionality.
 
 
 
