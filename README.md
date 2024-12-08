@@ -15,6 +15,11 @@ docker build -f docker/Dockerfile.dev -t api-pi .
 docker run -p 8000:8000 -v $(pwd)/database:/database api-pi
 ```
 
+3. Once the container is running, to run unit tests:
+
+```bash
+docker exec <CONTAINER ID> pytest --cov=app --cov-report=html --cov-report=term tests/
+```
 ### Without Docker
 
 2. In the root folder run:
@@ -24,6 +29,12 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 exec uvicorn app.main:app --reload --host 0.0.0.0
+```
+
+3. Once the project is up, to run unit tests:
+
+```bash
+docker exec <CONTAINER ID> pytest --cov=app --cov-report=html --cov-report=term tests/
 ```
 
 ## Endpoints
