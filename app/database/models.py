@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from app.database.config import Base
+from database.config import Base
 
 class Character(Base):
     __tablename__ = "characters"

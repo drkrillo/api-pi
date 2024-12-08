@@ -1,1 +1,1 @@
-from app.infrastructure.character_repository import *
+from infrastructure.character_repository import *

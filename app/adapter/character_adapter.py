@@ -1,21 +1,32 @@
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 
-from app.infrastructure import CharacterRepository
-from app.exceptions.custom_exception import CharacterIdExistsError, CharacterIdNotFound
+from infrastructure import CharacterRepository
+from exceptions.custom_exception import CharacterIdExistsError, CharacterIdNotFound
 
-from app.logger import logger
+from exceptions.logger import logger
 
 
 class CharacterAdapter:
     @staticmethod
     async def add_characeter(db: AsyncSession, character_data: dict) -> dict:
+        """
+        Is called by the service, and calls the repository.
+        
+        Args:
+        db: app's db async session
+        character_data: Dict with all Character¡s attributes.
+        
+        Returns:
+        dict with all characters data.
+        """
         character = await CharacterRepository.get_character_by_id(
             db=db,
             id=character_data["id"],
         )
         if character:
-            logger.error(f"Character id {id} already exists.")
+            logger.error(f"Character id {character.id} already exists.")
             raise CharacterIdExistsError("The ID is not available.")
         
         created_character = await CharacterRepository.add_character(
@@ -35,7 +46,16 @@ class CharacterAdapter:
         }
 
     @staticmethod
-    async def get_all_characters(db: AsyncSession):
+    async def get_all_characters(db: AsyncSession) -> List[dict]:
+        """
+        Is called by the service, and calls the repository.
+        
+        Args:
+        db: app's db async session
+        
+        Returns:
+        List[Dict(character_values)]
+        """
         try:
             all_characters = await CharacterRepository.get_all_characters(db)
             all_characters = [
@@ -57,7 +77,17 @@ class CharacterAdapter:
             logger.error(f"An error occurred while retrieving all characetrs: {e}")
             raise e
 
-    async def get_character_by_id(db: AsyncSession, id: int):
+    async def get_character_by_id(db: AsyncSession, id: int) -> dict:
+        """
+        Is called by the service, and calls the repository.
+        
+        Args:
+        db: app's db async session
+        id: int. Character's identifier.
+        
+        Returns:
+        Dict(detail: informative message)
+        """
         selected_character = await CharacterRepository.get_character_by_id(db=db, id=id)
         if not selected_character:
             logger.error(f"Character ID {id} not found.")

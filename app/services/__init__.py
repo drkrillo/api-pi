@@ -1,1 +1,1 @@
-from app.services.character_service import *
+from services.character_service import *

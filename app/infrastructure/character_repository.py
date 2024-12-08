@@ -4,21 +4,40 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.database.models import Character
-from app.exceptions.custom_exception import CharacterIdNotFound
+from database.models import Character
+from exceptions.custom_exception import CharacterIdNotFound
 
-from app.logger.config import logger
+from exceptions.logger import logger
 
 
 class CharacterRepository:
     
     @staticmethod
     async def get_all_characters(db: AsyncSession) -> List[Character]:
+        """
+        Interacts with DB to retrieve all characters.
+        
+        Args:
+        db: app's db async session
+        
+        Returns:
+        List[Character]
+        """
         result = await db.execute(select(Character))
         return result.scalars().all()
     
     @staticmethod
     async def get_character_by_id(db: AsyncSession, id: int) -> Character:
+        """
+        Interacts with db to retrieve character by ID.
+        
+        Args:
+        db: app's db async session
+        id: int. Character's identifier.
+        
+        Returns:
+        Character.
+        """
         result = await db.execute(select(Character).where(Character.id == id))
         return result.scalars().first()
 
@@ -27,6 +46,16 @@ class CharacterRepository:
         db: AsyncSession,
         character_data: dict,
     ) -> Character:
+        """
+        Interacts with db to add character.
+        
+        Args:
+        db: app's db async session
+        character_data: dict. All character's attributes.
+        
+        Returns:
+        Character.
+        """
         new_character = Character(**character_data)
         try:
             db.add(new_character)
@@ -44,6 +73,16 @@ class CharacterRepository:
         db: AsyncSession,
         id: int,
     ) -> dict:
+        """
+        Interacts with db to delete character by ID.
+        
+        Args:
+        db: app's db async session
+        id: int. Characetr's identifier.
+        
+        Returns:
+        dict {detail: Message}
+        """
         result = await db.execute(select(Character).where(Character.id == id))
         character_to_delete = result.scalars().first()
 
